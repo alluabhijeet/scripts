@@ -22,3 +22,9 @@ if [ "$local_commit" != "$remote_commit" ]; then
     echo "Error: Local main branch is not up-to-date with remote main. Please pull the latest changes."
     exit 1
 fi
+---
+resource "null_resource" "check_branch" {
+  provisioner "local-exec" {
+    command = "./check_branch.sh"
+  }
+}
