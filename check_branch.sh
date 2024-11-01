@@ -40,3 +40,30 @@ SHELL ["/bin/bash", "-c"]
 
 # Entrypoint for the Jenkins agent (optional if used as a Jenkins agent image)
 ENTRYPOINT ["terraform"]
+---
+pipeline {
+    agent {
+        dockerfile {
+            filename 'Dockerfile' // Path to the Dockerfile
+            dir '.'              // Directory where the Dockerfile is located
+        }
+    }
+
+    stages {
+        stage('Verify Terraform') {
+            steps {
+                // Run terraform version to check if it's installed and working
+                sh 'terraform version'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Terraform is installed and working!'
+        }
+        failure {
+            echo 'Failed to verify Terraform installation.'
+        }
+    }
+}
