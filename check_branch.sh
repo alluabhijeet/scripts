@@ -1,18 +1,19 @@
-# Start with Alpine Linux as the base image
-FROM alpine:latest
+# Start with Fedora as the base image
+FROM fedora:latest
 
 # Set versions for Terraform and Vault
 ARG TERRAFORM_VERSION=1.5.7
 ARG VAULT_VERSION=1.14.1
 
 # Install dependencies
-RUN apk update && \
-    apk add --no-cache \
+RUN dnf update -y && \
+    dnf install -y \
         curl \
         unzip \
-        bash \
         git \
-        openssh-client
+        openssh-clients \
+        bash && \
+    dnf clean all
 
 # Install Terraform
 RUN curl -fsSL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -o terraform.zip && \
@@ -30,7 +31,7 @@ RUN curl -fsSL https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAU
 RUN terraform -v && vault -v
 
 # Add a non-root user (optional, for security)
-RUN adduser -D jenkins
+RUN useradd -ms /bin/bash jenkins
 USER jenkins
 WORKDIR /home/jenkins
 
