@@ -1,28 +1,41 @@
-resource "null_resource" "check_branch" {
-  provisioner "local-exec" {
-    command = <<EOT
-      # Check if current branch is 'main'
-      branch=$(git rev-parse --abbrev-ref HEAD)
-      if [ "$branch" != "main" ]; then
-          echo "Error: Terraform can only be run from the 'main' branch."
-          exit 1
-      fi
+# Start with Alpine Linux as the base image
+FROM alpine:latest
 
-      # Check for uncommitted changes
-      if ! git diff-index --quiet HEAD --; then
-          echo "Error: Uncommitted changes detected. Please commit or stash them before running Terraform."
-          exit 1
-      fi
+# Set versions for Terraform and Vault
+ARG TERRAFORM_VERSION=1.5.7
+ARG VAULT_VERSION=1.14.1
 
-      # Check if the local main branch is up-to-date with the remote main branch
-      git fetch origin main
-      local_commit=$(git rev-parse HEAD)
-      remote_commit=$(git rev-parse origin/main)
+# Install dependencies
+RUN apk update && \
+    apk add --no-cache \
+        curl \
+        unzip \
+        bash \
+        git \
+        openssh-client
 
-      if [ "$local_commit" != "$remote_commit" ]; then
-          echo "Error: Local main branch is not up-to-date with remote main. Please pull the latest changes."
-          exit 1
-      fi
-    EOT
-  }
-}
+# Install Terraform
+RUN curl -fsSL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -o terraform.zip && \
+    unzip terraform.zip && \
+    mv terraform /usr/local/bin/ && \
+    rm terraform.zip
+
+# Install Vault
+RUN curl -fsSL https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip -o vault.zip && \
+    unzip vault.zip && \
+    mv vault /usr/local/bin/ && \
+    rm vault.zip
+
+# Verify installations
+RUN terraform -v && vault -v
+
+# Add a non-root user (optional, for security)
+RUN adduser -D jenkins
+USER jenkins
+WORKDIR /home/jenkins
+
+# Set default shell for the user
+SHELL ["/bin/bash", "-c"]
+
+# Entrypoint for the Jenkins agent (optional if used as a Jenkins agent image)
+ENTRYPOINT ["terraform"]
