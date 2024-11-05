@@ -90,4 +90,32 @@ variable "applications" {
   }))
   description = "A list of applications with their associated services and configurations"
 }
-
+---
+applications:
+  - name: Trading
+    dashboard_owner: abhijeet.allu.official@gmail.com
+    services:
+      - name: Account-Service
+        availability_slo_target: 99.9
+        availability_slo_warning: 99.99
+        availability_slo_evaluation_window: -30d
+        latency_slo_target: 90
+        latency_slo_warning: 95
+        latency_slo_evaluation_window: -30d
+        service_latency: 200
+        slo_burn_rate_alert_threshold : 1
+        tags:
+          - key: "[Kubernetes]app"
+            value: accountservice
+      - name: Login-Service
+        availability_slo_target: 99.8
+        availability_slo_warning: 99.95
+        availability_slo_evaluation_window: -30d
+        latency_slo_target: 85
+        latency_slo_warning: 90
+        latency_slo_evaluation_window: -30d
+        service_latency: 250
+        slo_burn_rate_alert_threshold : 1
+        tags:
+          - key: "[Kubernetes]app"
+            value: loginservice
