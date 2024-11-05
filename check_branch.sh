@@ -67,3 +67,27 @@ pipeline {
         }
     }
 }
+---
+variable "applications" {
+  type = list(object({
+    name            = string
+    dashboard_owner = string
+    services = list(object({
+      name                               = string
+      availability_slo_target           = float
+      availability_slo_warning          = float
+      availability_slo_evaluation_window = string
+      latency_slo_target                = float
+      latency_slo_warning               = float
+      latency_slo_evaluation_window     = string
+      service_latency                   = number
+      slo_burn_rate_alert_threshold     = number
+      tags                               = list(object({
+        key   = string
+        value = string
+      }))
+    }))
+  }))
+  description = "A list of applications with their associated services and configurations"
+}
+
