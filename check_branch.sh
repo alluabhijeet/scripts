@@ -119,3 +119,29 @@ applications:
         tags:
           - key: "[Kubernetes]app"
             value: loginservice
+---
+
+# dynatrace-oneagent-clusterrole.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: dynatrace-oneagent-metadata-viewer
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get"]
+
+---
+
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: dynatrace-oneagent-metadata-viewer-binding
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: namespace1 # Specify the namespace of the service account
+roleRef:
+  kind: ClusterRole
+  name: dynatrace-oneagent-metadata-viewer
+  apiGroup: rbac.authorization.k8s.io
