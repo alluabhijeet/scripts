@@ -145,3 +145,25 @@ roleRef:
   kind: ClusterRole
   name: dynatrace-oneagent-metadata-viewer
   apiGroup: rbac.authorization.k8s.io
+---
+
+# templates/rolebinding.yaml
+{{- $clusterRole := .Values.clusterRoleName }}
+{{- $labelSelector := .Values.labelSelector }}
+{{- $namespaces := (lookup "v1" "Namespace" "" "").items | where "metadata.labels" "hasKey" $labelSelector.key | where "metadata.labels" $labelSelector.key $labelSelector.value }}
+{{- range $namespace := $namespaces }}
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: dynatrace-oneagent-metadata-viewer-binding
+  namespace: {{ $namespace.metadata.name }}
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: {{ $namespace.metadata.name }}
+roleRef:
+  kind: ClusterRole
+  name: {{ $clusterRole }}
+  apiGroup: rbac.authorization.k8s.io
+---
+{{- end }}
