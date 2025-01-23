@@ -1,28 +1,39 @@
-# Use Fedora as the base image
-FROM fedora:latest
+# Use Alpine Linux as the base image
+FROM alpine:latest
 
-# Install required dependencies for Terraform and Vault
-RUN dnf -y update && dnf -y install \
+# Set environment variables to avoid interactive prompts during package installation
+ENV TERRAFORM_VERSION=1.5.0
+ENV VAULT_VERSION=1.14.0
+
+# Install dependencies
+RUN apk update && \
+    apk add --no-cache \
     curl \
     unzip \
-    gnupg \
-    lsb-release \
-    && dnf clean all
+    bash \
+    jq \
+    git
 
 # Install Terraform
-RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | tee /etc/apt/trusted.gpg.d/hashicorp.asc
-RUN echo "deb https://apt.releases.hashicorp.com fedora stable" | tee /etc/yum.repos.d/hashicorp.repo
-RUN dnf -y install terraform
+RUN curl -fsSL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -o terraform.zip && \
+    unzip terraform.zip && \
+    mv terraform /usr/local/bin/ && \
+    rm terraform.zip
 
 # Install Vault CLI
-RUN curl -fsSL https://releases.hashicorp.com/vault/1.15.0/vault_1.15.0_linux_amd64.zip -o /tmp/vault.zip
-RUN unzip /tmp/vault.zip -d /usr/local/bin/ && rm /tmp/vault.zip
+RUN curl -fsSL https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip -o vault.zip && \
+    unzip vault.zip && \
+    mv vault /usr/local/bin/ && \
+    rm vault.zip
 
-# Expose Vault's default port (not really necessary here as we're not running Vault)
+# Set the working directory
+WORKDIR /workspace
+
+# Set the entrypoint to bash
+ENTRYPOINT ["/bin/bash"]
+
+# Expose ports for Vault (optional)
 EXPOSE 8200
 
-# Set environment variables (if needed)
-ENV VAULT_ADDR=http://127.0.0.1:8200
-
-# Set default command (Terraform CLI for interactive use)
-CMD ["bash"]
+# Final message
+CMD ["echo", "Terraform and Vault CLI installed successfully!"]
