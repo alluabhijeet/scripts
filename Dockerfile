@@ -1,39 +1,45 @@
-# Use Alpine Linux as the base image
-FROM alpine:latest
+pipeline {
+    agent any
 
-# Set environment variables to avoid interactive prompts during package installation
-ENV TERRAFORM_VERSION=1.5.0
-ENV VAULT_VERSION=1.14.0
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout the branch associated with the Jenkins job
+                checkout scm
+            }
+        }
 
-# Install dependencies
-RUN apk update && \
-    apk add --no-cache \
-    curl \
-    unzip \
-    bash \
-    jq \
-    git
+        stage('Merge Main') {
+            steps {
+                script {
+                    // Fetch the latest changes from the repository
+                    sh 'git fetch origin'
 
-# Install Terraform
-RUN curl -fsSL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -o terraform.zip && \
-    unzip terraform.zip && \
-    mv terraform /usr/local/bin/ && \
-    rm terraform.zip
+                    // Get the current branch name
+                    def currentBranch = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
 
-# Install Vault CLI
-RUN curl -fsSL https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip -o vault.zip && \
-    unzip vault.zip && \
-    mv vault /usr/local/bin/ && \
-    rm vault.zip
+                    // Attempt to merge the latest changes from the main branch into the current branch
+                    def mergeStatus = sh(script: "git merge origin/main", returnStatus: true)
 
-# Set the working directory
-WORKDIR /workspace
+                    // Check if the merge was successful (status 0 means successful merge)
+                    if (mergeStatus != 0) {
+                        error "Merge conflict detected. The build has failed."
+                    }
 
-# Set the entrypoint to bash
-ENTRYPOINT ["/bin/bash"]
+                    // If the merge is successful, commit the changes
+                    sh "git commit -am 'Merge latest changes from main into ${currentBranch}'"
 
-# Expose ports for Vault (optional)
-EXPOSE 8200
+                    // Push the merge commit (optional)
+                    // sh "git push origin ${currentBranch}"
+                }
+            }
+        }
 
-# Final message
-CMD ["echo", "Terraform and Vault CLI installed successfully!"]
+        stage('Build') {
+            steps {
+                // Your build steps go here
+                sh 'echo "Build step here"'
+            }
+        }
+    }
+}
