@@ -1,3 +1,10 @@
+# Download and install GitHub CLI
+RUN curl -fsSL https://github.com/cli/cli/releases/download/v2.34.0/gh_2.34.0_linux_amd64.tar.gz -o gh.tar.gz \
+    && tar -xvzf gh.tar.gz \
+    && mv gh_*/bin/gh /usr/local/bin/gh \
+    && rm -rf gh.tar.gz gh_*
+
+
 pipeline {
     agent any
 
