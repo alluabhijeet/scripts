@@ -1,0 +1,13 @@
+We are excited to announce the release of the latest Dynatrace features to the general audience. This update introduces significant enhancements in observability and data analytics, providing new tools and improved functionality.
+
+What’s New?
+Grail – Unified Data Lakehouse for enhanced data ingestion and analytics
+Dynatrace Query Language (DQL) for more flexible data queries
+New User Interface with improved navigation and usability
+New Apps like Notebooks, and Dashboards
+Latest versions of Classic Apps with improved functionality. For example, the New Kubernetes App replaces the Classic Kubernetes App and brings significant enhancements to improve analytics 
+
+
+What You Need to Know
+Existing functionality remains unchanged. The latest features are available in addition to the current system.
+Users can switch back to the existing UI at any time if preferred.
