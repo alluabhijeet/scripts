@@ -1,0 +1,47 @@
+import requests
+from requests.auth import HTTPBasicAuth
+
+# Splunk API Details
+splunk_host = "https://<your-splunk-cloud-host>"
+username = "your_username"
+password = "your_password"
+new_cc_emails = ["newemail1@example.com", "newemail2@example.com"]  # Add new CC emails here
+
+# Step 1: Fetch all saved searches (alerts)
+response = requests.get(
+    f"{splunk_host}/services/saved/searches?output_mode=json",
+    auth=HTTPBasicAuth(username, password),
+    verify=False
+)
+
+if response.status_code == 200:
+    alerts = response.json()["entry"]
+    for alert in alerts:
+        alert_name = alert["name"]
+        content = alert.get("content", {})
+
+        # Step 2: Get existing CC emails
+        existing_cc = content.get("action.email.cc", "")
+        existing_cc_list = existing_cc.split(",") if existing_cc else []
+
+        # Step 3: Append new CC emails (avoid duplicates)
+        updated_cc_list = list(set(existing_cc_list + new_cc_emails))
+        updated_cc_str = ",".join(updated_cc_list)
+
+        print(f"Updating alert: {alert_name} with CC: {updated_cc_str}")
+
+        # Step 4: Update the saved search with the new CC list
+        update_response = requests.post(
+            f"{splunk_host}/services/saved/searches/{alert_name}",
+            auth=HTTPBasicAuth(username, password),
+            data={"action.email.cc": updated_cc_str, "output_mode": "json"},
+            verify=False
+        )
+
+        if update_response.status_code == 200:
+            print(f"✅ Successfully updated: {alert_name}")
+        else:
+            print(f"❌ Failed to update: {alert_name} - {update_response.text}")
+
+else:
+    print(f"❌ Failed to fetch alerts: {response.text}")
