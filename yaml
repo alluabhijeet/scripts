@@ -1,0 +1,65 @@
+import csv
+import yaml
+
+def load_support_group_mapping(csv_filename):
+    """
+    Loads the CSV file and returns a dictionary mapping support group to product.
+    Assumes CSV has headers "support group" and "product".
+    """
+    mapping = {}
+    with open(csv_filename, mode='r', newline='', encoding='utf-8') as csvfile:
+        # Use DictReader to load each row as a dictionary.
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            # Use the CSV column names: adjust if necessary.
+            support_group = row["support group"].strip()
+            product = row["product"].strip()
+            mapping[support_group] = product
+    return mapping
+
+def update_yaml_with_product(yaml_filename, csv_filename, output_filename):
+    """
+    Reads a YAML file that contains a list of items.
+    For each item, it looks up the "support group" in the mapping from the CSV
+    and adds a new field "product" to the item.
+    The updated items are saved to a new YAML file.
+    """
+    # Load the YAML data.
+    with open(yaml_filename, 'r', encoding='utf-8') as yf:
+        data = yaml.safe_load(yf)
+    
+    # Ensure the YAML data is a list.
+    if not isinstance(data, list):
+        raise ValueError("The YAML file should contain a list of items.")
+
+    # Load the CSV mapping.
+    sg_mapping = load_support_group_mapping(csv_filename)
+    
+    # Iterate over each item in the YAML list.
+    for item in data:
+        # Retrieve the support group from the item.
+        # Adjust the key name here if your YAML uses a different name.
+        support_group = item.get("support_group")
+        if support_group is not None:
+            # Lookup the product value from the CSV mapping.
+            # We assume that CSV support groups and YAML support groups match after stripping.
+            product = sg_mapping.get(support_group.strip(), None)
+            # Add the product to the item.
+            item["product"] = product
+        else:
+            # If no support group is found, you may choose to assign a default value.
+            item["product"] = None
+    
+    # Write the updated data to a new YAML file.
+    with open(output_filename, 'w', encoding='utf-8') as outf:
+        yaml.dump(data, outf, default_flow_style=False)
+    
+    print(f"Updated YAML data has been saved to '{output_filename}'.")
+
+if __name__ == "__main__":
+    # Adjust these file paths as needed.
+    yaml_input = "data.yaml"
+    csv_input = "support_groups.csv"
+    yaml_output = "data_with_products.yaml"
+    
+    update_yaml_with_product(yaml_input, csv_input, yaml_output)
