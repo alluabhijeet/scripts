@@ -1,3 +1,4 @@
+```mermaid
 flowchart TD
     P["Problem"]
     A1["Davis AI Anomaly Detection"] --> P
@@ -12,3 +13,4 @@ flowchart TD
     E --> F@{ shape: processes, label: "Alerting Profile Scoped to the Respective Management Zone"}
     F --> G@{ shape: processes, label: "Respective Problem Notification, hardcoded with the Assignment Group"}
     G --> H["ServiceNow"]
+```
