@@ -1,0 +1,100 @@
+# Steps to Apply Changes via Jenkins
+
+Once your PR has been approved and merged into the main branch, follow the steps below to apply the changes in your environments.
+
+### 1. If You Made Changes in Non-Prod
+
+1. **Access Jenkins Pipeline**
+   - Navigate to the Jenkins pipeline interface.
+
+2. **Select Non-Prod → Build**
+   - Choose the *Non-Prod* environment.
+   - Click on *Build*.
+
+3. **Review Terraform Plan**
+   - Jenkins will prompt you to review the Terraform plan.
+   - Review the plan carefully to ensure everything is correct.
+
+4. **Proceed with Apply**
+   - Click *Ok* to proceed with applying the changes.
+   - **Important**: If you do not respond within 10 minutes, the build will be aborted.
+
+   **Optional: Targeted Apply**
+   - To apply specific Terraform resources, input the resource identifier in the *TARGET* input box.
+   - Jenkins will only apply the selected resources based on your input.
+
+---
+
+### 2. If You Made Changes in Prod
+
+**Warning:** Ensure that all changes in Non-Prod have been validated before proceeding to Prod.
+
+1. **Access Jenkins Pipeline**
+   - Navigate to the Jenkins pipeline interface.
+
+2. **Select Prod → Build**
+   - Choose the *Prod* environment.
+   - Click on *Build*.
+
+3. **Review Terraform Plan**
+   - Jenkins will prompt you to review the Terraform plan for the production environment.
+   - Carefully review the plan to ensure all changes are correct.
+
+4. **Proceed with Apply**
+   - Click *Ok* to apply the changes to the Prod environment.
+   - **Important**: If you do not respond within 10 minutes, the build will be aborted.
+
+5. **Enter Change Number**
+   - After approving the build, Jenkins will ask you to input a *Change Number*.
+   - Provide the required information to proceed.
+
+   **Optional: Targeted Apply**
+   - To apply specific Terraform resources, input the resource identifier in the *TARGET* input box.
+   - Jenkins will only apply the selected resources based on your input.
+
+---
+
+### 3. If You Made Changes in Global
+
+**Note:** Changes in Global require validation in both Non-Prod and Prod environments.
+
+1. **Access Jenkins Pipeline**
+   - Navigate to the Jenkins pipeline interface.
+
+2. **Select Non-Prod → Build**
+   - Choose the *Non-Prod* environment.
+   - Click on *Build*.
+
+3. **Review Terraform Plan**
+   - Jenkins will prompt you to review the Terraform plan.
+   - Make sure everything is validated for the Non-Prod environment.
+
+4. **Proceed with Apply**
+   - Click *Ok* to apply the changes to the Non-Prod environment.
+   - **Important**: If you do not respond within 10 minutes, the build will be aborted.
+
+5. **Access Jenkins Pipeline Again**
+   - Navigate back to the Jenkins pipeline interface.
+
+6. **Select Prod → Build**
+   - Choose the *Prod* environment.
+   - Click on *Build*.
+
+7. **Review Terraform Plan**
+   - Jenkins will prompt you to review the Terraform plan for the production environment.
+   - Review it carefully to ensure that all changes are accurate.
+
+8. **Proceed with Apply**
+   - Click *Ok* to apply the changes to Prod.
+
+9. **Enter Change Number**
+   - After approving the build, Jenkins will prompt you for a *Change Number*.
+   - Enter the required number to finalize the process.
+
+   **Optional: Targeted Apply**
+   - To apply specific Terraform resources, input the resource identifier in the *TARGET* input box.
+   - Jenkins will only apply the selected resources based on your input.
+
+---
+
+**Reminder:** Always ensure that changes are properly validated in Non-Prod before making updates in Prod. Failure to respond within 10 minutes during the process will abort the build, so make sure to monitor your Jenkins notifications.
