@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ include "<your‑chart>.fullname" . }}-dt-zone-update"
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: dt-zone-updater
+          image: curlimages/curl:7.85.0
+          env:
+            # load env ID from values
+            - name: DT_ENV_ID
+              value: "{{ .Values.dynatrace.environmentId }}"
+            # load API token from Secret
+            - name: DT_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Values.dynatrace.apiTokenSecretName }}"
+                  key: token
+            # network zone fields
+            - name: ZONE_ID
+              value: "{{ .Values.networkZone.id }}"
+            - name: FALLBACK_MODE
+              value: "{{ .Values.networkZone.fallbackMode }}"
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Updating Dynatrace network zone $ZONE_ID → fallbackMode=$FALLBACK_MODE"
+              curl --fail --show-error --silent \
+                -X PUT "https://$DT_ENV_ID.live.dynatrace.com/api/v2/networkZones/$ZONE_ID" \
+                -H "Authorization: Api-Token $DT_API_TOKEN" \
+                -H "Content-Type: application/json" \
+                -d '{
+                    "id":"'"$ZONE_ID"'",
+                    "fallbackMode":"'"$FALLBACK_MODE"'"
+                  }'
+      # nothing else to mount; curl binary is all we need
