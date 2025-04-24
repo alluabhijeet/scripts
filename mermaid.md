@@ -1,5 +1,5 @@
 
-```mermiad
+```mermaid
 flowchart TD
     P["Problem"]
     A1["Davis AI Anomaly Detection"] --> P
