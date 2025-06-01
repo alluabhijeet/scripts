@@ -1,0 +1,19 @@
+---
+- name: Clear all log files from /var/log/demo
+  hosts: localhost
+  become: yes
+  tasks:
+
+    - name: Find all .log files in /var/log/demo
+      find:
+        paths: /var/log/demo
+        patterns: "*.log"
+        recurse: yes
+      register: demo_logs
+
+    - name: Delete all demo log files
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ demo_logs.files }}"
+      when: demo_logs.matched > 0
