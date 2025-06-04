@@ -1,0 +1,1 @@
+python3 -c "import base64, os; print('dt0e01.' + base64.b32encode(os.urandom(15)).decode().rstrip('=').upper() + '.' + base64.b32encode(os.urandom(40)).decode().rstrip('=').upper())"
