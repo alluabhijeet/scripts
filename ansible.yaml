@@ -7,10 +7,11 @@
     - name: Ensure syslogenabled=true is set in extensionsuser.conf
       lineinfile:
         path: /var/lib/dynatrace/remotepluginmodule/agent/conf/extensionsuser.conf
-        line: "syslogenabled=true"
+        regexp: '^syslogenabled='
+        line: 'syslogenabled=true'
         create: yes
         state: present
-        backup: yes
+
 
     - name: Restart Dynatrace Remote Plugin Module (if needed)
       service:
