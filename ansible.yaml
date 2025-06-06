@@ -1,0 +1,36 @@
+---
+- name: Enable and verify Dynatrace syslog ingestion
+  hosts: all
+  become: yes
+  tasks:
+
+    - name: Ensure syslogenabled=true is set in extensionsuser.conf
+      lineinfile:
+        path: /var/lib/dynatrace/remotepluginmodule/agent/conf/extensionsuser.conf
+        line: "syslogenabled=true"
+        create: yes
+        state: present
+        backup: yes
+
+    - name: Restart Dynatrace Remote Plugin Module (if needed)
+      service:
+        name: remotepluginmodule
+        state: restarted
+      ignore_errors: true  # In case the service name is different or managed another way
+
+    - name: Pause for 10 seconds to allow log file to update
+      pause:
+        seconds: 10
+
+    - name: Find the latest ruxit_extensionmodule log file
+      shell: |
+        ls -t /var/lib/dynatrace/remotepluginmodule/log/extensions/ruxit_extensionmodule_*.log | head -n 1
+      register: newest_log_file
+      changed_when: false
+
+    - name: Check for "Otel syslog enabled: true" in log
+      shell: |
+        grep "Otel syslog enabled: true" "{{ newest_log_file.stdout }}"
+      register: syslog_check
+      failed_when: syslog_check.rc != 0
+      changed_when: false
