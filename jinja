@@ -1,0 +1,9 @@
+{% set parts = [] %}
+{% for item in data %}
+  {% if item.value is defined and item.value %}
+    {% set _ = parts.append(item.key ~ ':' ~ item.value) %}
+  {% else %}
+    {% set _ = parts.append(item.key) %}
+  {% endif %}
+{% endfor %}
+{{ parts | join(',') }}
