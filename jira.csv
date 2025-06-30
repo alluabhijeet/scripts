@@ -1,2 +1,2 @@
 Issue Type,Summary,Description,Migration Status,Target Start Date,Target Completion Date,Validation Owner,Accepatance Criteria,Label,Label,Label,Label,Label,Label,Label,Label,Label,Label
-Story,Test Story,Test Description,In Progress,06/30/2025,07/30/2025,abhijeet.allu,Accepatance Crieteria,Wave Number,Team Name,APM,Team Contact,OneAgent:True,Extension:True,Syslog:True,Compliance/PII Status,Environment,Priority
+Story,Test Story,Test Description,In Progress,06/30/2025,07/30/2025,abhijeet.allu,Accepatance Crieteria,Wave Number: 1,Team Name: CD Tools,APM: APM10000,Contact: Jeff,OneAgent:True,Extension:True,Syslog:True,PII:True,Environment:DEV,Priority:1
